@@ -1,0 +1,122 @@
+## 코드 indent줄이기(Guard Clausing, Polymorphism)
+
+- if-else 조건문을 많이 사용하게 되면 코드 라인이 길어지고 indent가 많아져 가독성이 떨어지는 문제가 발생합니다. 이 때 Guard Clasuing과 Polymorhism(다형성)을 사용하면 코드를 클린하게 짤 수 있습니다.
+
+## Guard clause
+
+- 일반적으로 if-else문이 중첩(nested)될수록 코드는 복잡해지고 보기 지저분해집니다.
+
+```
+# BAD
+if:
+    ...
+    if:
+        ...
+        if:
+            ...
+            while :
+            ...
+```
+
+- nested 코드를 줄이고 가독성을 높이기 위해선, 코드 상단에 Fail이 되는 로직을 위로 넣어두는 것이 좋습니다.
+
+- as-is
+
+```
+def say_hi_to_spring_user(developer):
+    if developer.is_front_end:
+        raise Exception("you are front engineer!")
+    elif developer.is_back_end:
+        if developer.likes_python:
+            raise Exception("you user python!")
+        elif developer.likes_java:
+            if developer.use_spring:
+                return "hello! spring User!"
+            else:
+                raise Exception("you use other java framework!")
+    raise Exception("who are you?")
+```
+
+- to-be
+
+```
+def say_hi_to_spring_user(developer):
+  if not developer.is_backend:
+      raise Exception("you are not backend engineer!")
+
+  if not developer.likes_java:
+      raise Exception("you don't like java TT")
+
+  if not developer.use_spring:
+      raise Exception("you don't use spring!")
+
+  return "hello! spring user"
+```
+
+## Polymorphsim(다형성)
+
+- 객체지향의 꽃이라고 불리는 다형성을 활용하여 if-condition을 줄일 수 있습니다.
+
+  - as-is
+
+  ```
+  class Developer:
+      def coding(self):
+          print("코딩을 합니다")
+
+  class Designer:
+      def design(self):
+          print("디자인을 합니다")
+
+  class Analyst:
+      def analyze(self):
+          print("분석을 합니다")
+
+  class Company:
+      def __init__(self, employees):
+          self.employees = employees
+
+      def make_work(self):
+          for employee in self.employees:
+              if type(employee) == Developer:
+                  employee.coding()
+
+              elif type(employee) == Designer:
+                  employee.design()
+
+              elif type(employee) == Analyst:
+                  employee.analyze()
+  ```
+
+  - to-be
+
+  ```
+  class Employee(metaclass = abc.ABCMeta):
+      @abc abstractmethod
+      def work(self):
+          ...
+
+  class Developer(Employee):
+      def work(self):
+          print("코딩을 합니다.")
+
+  class Designer(Employee):
+      def work(self):
+          print("디자인을 합니다.")
+
+  class Analyst(Employee):
+      def work(self):
+          print("분석을 합니다.")
+
+  class Manager(Employee):
+      def work(self):
+          print("매니징을 합니다.")
+
+  class Company:
+      def __init__ (self, employees: List[Employee])
+          self.employees = employees
+
+      def make_work(self):
+          for employee in self.emplyoees:
+              employee.work()
+  ```
