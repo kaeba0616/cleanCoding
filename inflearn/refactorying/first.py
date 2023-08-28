@@ -1,18 +1,36 @@
-## 리펙토링을 통한 객체 지향 알아보기
+# 1번. 다른 Store가 들어오면 어떻게 될까?
+# 개선점
+# 1. Store 추상화를 한다.
+# 2. 의존성 주입을 한다.
 
-- 기존 프로젝트 파일
+from abc import ABC, abstractmethod
 
-  - https://github.com/yansfil/devall-class-oop-test/tree/oop-example
 
-- 상황
-
-  - 사용자가 상점에서 상품을 구매하는 코드를 구현합니다.
-  - 사용자와 상점은 돈을 가지고 있고, 거래가 일어나면 돈을 주고받습니다.
-
-- 리펙토링 전 코드
-
-```
-class GrabStore:
+class Store(ABC):
+    @abstractmethod
+    def __init__(self):
+        self.money = 0
+        self.name = ""
+        self.products = {}
+        
+    @abstractmethod
+    def set_money(self, money):
+        ...
+        
+    @abstractmethod
+    def set_product(self, products):
+        ...
+        
+    @abstractmethod
+    def get_money(self):
+        ...
+        
+    @abstractmethod
+    def get_product(self):
+        ...
+        
+        
+class GrabStore(Store):
     def __init__(self):
         self.money = 0
         self.name = "그랩마켓"
@@ -33,10 +51,32 @@ class GrabStore:
     def get_product(self):
         return self.products
 
-class User:
-    def __init___(self):
+
+class FruitsStore(Store):
+    def __init__(self):
         self.money = 0
-        self.store = GrabStore()
+        self.name = "과일마켓"
+        self.products = {
+            1: {"name": "바나나", "price" : 30000},
+            2: {"name": "사과", "price" : 50000},
+        }
+
+    def set_money(self, money):
+        self.money = money
+
+    def set_product(self, products):
+        self.products = products
+
+    def get_money(self):
+        return self.money
+
+    def get_product(self):
+        return self.products
+
+class User:
+    def __init___(self, store: Store):
+        self.money = 0
+        self.store = store
         self.belongs = []
 
     def set_money(self, money):
@@ -72,7 +112,5 @@ class User:
 
 # 실행코드
 if __name__ == "__main__":
-    user = User()
-    user.set_money(100000)
-    user.purchase_product(product_id=1)
-```
+    user_a = User(store=GrabStore())
+    user_b = User(store=FruitsStore())
